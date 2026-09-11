@@ -28,6 +28,20 @@ export class Register {
     return this.form.get('password') as FormControl;
   }
 
+  get fullNameErrors(): string | null {
+    const fullNameControl = this.form.get('fullName')
+    if (fullNameControl?.hasError('required')) return 'O nome completo é obrigatório'
+    if (fullNameControl?.hasError('minlength')) return 'O nome deve ter 3 letras ou mais'
+    return null
+  }
+
+  get emailErrors(): string | null{
+    const emailControl = this.form.get('email')
+    if (emailControl?.hasError('required')) return 'O cadastro do E-mail é obrigatório'
+    if (emailControl?.hasError('email')) return 'Este E-mail é inválido'
+    return null 
+  }
+
   submit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
