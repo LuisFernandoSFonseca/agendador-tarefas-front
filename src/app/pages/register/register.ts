@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PasswordField } from '../../shared/components/password-field/password-field';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { UserService } from '../../services/user';
 
 @Component({
   imports: [MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, PasswordField, ReactiveFormsModule],
@@ -16,20 +17,20 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } 
 })
 export class Register {
   form: FormGroup;
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private userService: UserService) {
     this.form = this.formBuilder.group({
-      fullName: ['', [Validators.required, Validators.minLength(3)]],
+      nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      senha: ['', [Validators.required, Validators.minLength(8)]]
     })
   }
 
   get passwordControl(): FormControl {
-    return this.form.get('password') as FormControl;
+    return this.form.get('senha') as FormControl;
   }
 
   get fullNameErrors(): string | null {
-    const fullNameControl = this.form.get('fullName')
+    const fullNameControl = this.form.get('nome')
     if (fullNameControl?.hasError('required')) return 'O nome completo é obrigatório'
     if (fullNameControl?.hasError('minlength')) return 'O nome deve ter 3 letras ou mais'
     return null
@@ -47,6 +48,16 @@ export class Register {
       this.form.markAllAsTouched();
       return
     }
-    console.log("Formulário submetido", this.form.value)
+
+    const formData = this.form.value;
+
+    this.userService.register(formData).subscribe({
+      next: (response) => {
+        console.log(`Usuário registrado com sucesso`, response);
+      },
+      error: (error) => {
+        console.error(`Erro ao registrar usuário`, error)
+      }
+    })
   }
 }
