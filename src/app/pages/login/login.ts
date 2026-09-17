@@ -6,10 +6,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PasswordField } from '../../shared/components/password-field/password-field';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { UserService } from '../../services/user';
+import { UserLoginPayload, UserService } from '../../services/user';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+
+
 
 @Component({
   imports: [
@@ -21,13 +23,15 @@ import { finalize } from 'rxjs';
     PasswordField,
     ReactiveFormsModule,
     MatProgressSpinnerModule],
-  selector: 'app-register',
-  styleUrl: './register.scss',
-  templateUrl: './register.html',
-  encapsulation: ViewEncapsulation.None,
+  selector: 'app-login',
+  styleUrl: './login.scss',
+  templateUrl: './login.html',
+  encapsulation: ViewEncapsulation.None
 })
-export class Register {
-  form: FormGroup;
+
+export class Login { 
+
+  form : FormGroup<{email: FormControl<string>, senha: FormControl<string>}>;
   isLoading = signal(false);
 
   constructor(
@@ -36,26 +40,18 @@ export class Register {
     private router: Router
   ) {
     this.form = this.formBuilder.group({
-      nome: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required, Validators.minLength(8)]]
-    })
+      email: this.formBuilder.control('', {validators: [Validators.required, Validators.email], nonNullable: true}),
+      senha: this.formBuilder.control ('', {validators: [Validators.required, Validators.minLength(8)], nonNullable: true})
+    });
   }
 
-  get passwordControl(): FormControl {
+   get passwordControl(): FormControl {
     return this.form.get('senha') as FormControl;
-  }
-
-  get fullNameErrors(): string | null {
-    const fullNameControl = this.form.get('nome')
-    if (fullNameControl?.hasError('required')) return 'O nome completo é obrigatório'
-    if (fullNameControl?.hasError('minlength')) return 'O nome deve ter 3 letras ou mais'
-    return null
   }
 
   get emailErrors(): string | null {
     const emailControl = this.form.get('email')
-    if (emailControl?.hasError('required')) return 'O cadastro do E-mail é obrigatório'
+    if (emailControl?.hasError('required')) return 'O E-mail de login é obrigatório'
     if (emailControl?.hasError('email')) return 'Este E-mail é inválido'
     return null
   }
@@ -66,18 +62,19 @@ export class Register {
       return
     }
 
-    const formData = this.form.value;
+    const formData = this.form.value as UserLoginPayload;
 
     this.isLoading.set(true);
 
-    this.userService.register(formData)
+    this.userService.login(formData)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (response) => {
-          this.router.navigate(['/login']);
+          console.log('Usuário logado')
+          this.router.navigate(['/']);
         },
         error: (error) => {
-          console.error(`Erro ao registrar usuário`, error)
+          console.error(`Erro ao entrar`, error)
         }
       })
   }
