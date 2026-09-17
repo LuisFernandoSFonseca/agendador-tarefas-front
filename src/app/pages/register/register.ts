@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,9 +6,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PasswordField } from '../../shared/components/password-field/password-field';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { UserService } from '../../services/user';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
 @Component({
-  imports: [MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, PasswordField, ReactiveFormsModule],
+  imports: [MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule,
+    MatSelectModule, PasswordField, ReactiveFormsModule, MatProgressSpinnerModule],
   selector: 'app-register',
   styleUrl: './register.scss',
   templateUrl: './register.html',
@@ -16,30 +21,35 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } 
 })
 export class Register {
   form: FormGroup;
-  constructor(private formBuilder: FormBuilder) {
+  isLoading = signal(false);
+
+  constructor(private formBuilder: FormBuilder,
+    private userService: UserService,
+    private router: Router
+  ) {
     this.form = this.formBuilder.group({
-      fullName: ['', [Validators.required, Validators.minLength(3)]],
+      nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      senha: ['', [Validators.required, Validators.minLength(8)]]
     })
   }
 
   get passwordControl(): FormControl {
-    return this.form.get('password') as FormControl;
+    return this.form.get('senha') as FormControl;
   }
 
   get fullNameErrors(): string | null {
-    const fullNameControl = this.form.get('fullName')
+    const fullNameControl = this.form.get('nome')
     if (fullNameControl?.hasError('required')) return 'O nome completo é obrigatório'
     if (fullNameControl?.hasError('minlength')) return 'O nome deve ter 3 letras ou mais'
     return null
   }
 
-  get emailErrors(): string | null{
+  get emailErrors(): string | null {
     const emailControl = this.form.get('email')
     if (emailControl?.hasError('required')) return 'O cadastro do E-mail é obrigatório'
     if (emailControl?.hasError('email')) return 'Este E-mail é inválido'
-    return null 
+    return null
   }
 
   submit() {
@@ -47,6 +57,20 @@ export class Register {
       this.form.markAllAsTouched();
       return
     }
-    console.log("Formulário submetido", this.form.value)
+
+    const formData = this.form.value;
+
+    this.isLoading.set(true);
+
+    this.userService.register(formData)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error(`Erro ao registrar usuário`, error)
+        }
+      })
   }
 }
