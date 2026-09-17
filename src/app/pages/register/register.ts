@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,9 +7,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { PasswordField } from '../../shared/components/password-field/password-field';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { UserService } from '../../services/user';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
 @Component({
-  imports: [MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, PasswordField, ReactiveFormsModule],
+  imports: [MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule,
+    MatSelectModule, PasswordField, ReactiveFormsModule, MatProgressSpinnerModule],
   selector: 'app-register',
   styleUrl: './register.scss',
   templateUrl: './register.html',
@@ -17,7 +21,12 @@ import { UserService } from '../../services/user';
 })
 export class Register {
   form: FormGroup;
-  constructor(private formBuilder: FormBuilder, private userService: UserService) {
+  isLoading = signal(false);
+
+  constructor(private formBuilder: FormBuilder,
+    private userService: UserService,
+    private router: Router
+  ) {
     this.form = this.formBuilder.group({
       nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -36,11 +45,11 @@ export class Register {
     return null
   }
 
-  get emailErrors(): string | null{
+  get emailErrors(): string | null {
     const emailControl = this.form.get('email')
     if (emailControl?.hasError('required')) return 'O cadastro do E-mail é obrigatório'
     if (emailControl?.hasError('email')) return 'Este E-mail é inválido'
-    return null 
+    return null
   }
 
   submit() {
@@ -51,13 +60,17 @@ export class Register {
 
     const formData = this.form.value;
 
-    this.userService.register(formData).subscribe({
-      next: (response) => {
-        console.log(`Usuário registrado com sucesso`, response);
-      },
-      error: (error) => {
-        console.error(`Erro ao registrar usuário`, error)
-      }
-    })
+    this.isLoading.set(true);
+
+    this.userService.register(formData)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response) => {
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error(`Erro ao registrar usuário`, error)
+        }
+      })
   }
 }
