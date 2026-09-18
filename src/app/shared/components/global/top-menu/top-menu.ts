@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,14 +15,14 @@ import { RouterStateService } from '../../../../core/router/router-state';
 export class TopMenu implements OnInit, OnDestroy {
   appLogo = "assets/logo-agendador-javanauta.png";
 
-  rotaAtual: string = '';
+  rotaAtual = signal('');
   inscricaoRota!: Subscription;
 
   private routerService = inject(RouterStateService)
 
   ngOnInit(): void {
     this.inscricaoRota = this.routerService.rotaAtual$.subscribe(url => {
-      this.rotaAtual = url;
+      this.rotaAtual.set(url);
     })
   }
 
@@ -31,10 +31,10 @@ export class TopMenu implements OnInit, OnDestroy {
   }
 
   isOnRouteRegister(): boolean {
-    return this.rotaAtual === '/register'
+    return this.rotaAtual() === '/register'
   }
 
   isOnRouteLogin(): boolean {
-    return this.rotaAtual === '/login'
+    return this.rotaAtual() === '/login'
   }
 }
