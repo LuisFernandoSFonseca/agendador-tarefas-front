@@ -30,9 +30,9 @@ import { AuthService } from '../../services/auth';
   encapsulation: ViewEncapsulation.None
 })
 
-export class Login { 
+export class Login {
 
-  form : FormGroup<{email: FormControl<string>, senha: FormControl<string>}>;
+  form: FormGroup<{ email: FormControl<string>, senha: FormControl<string> }>;
   isLoading = signal(false);
 
   constructor(
@@ -42,18 +42,18 @@ export class Login {
     private authService: AuthService
   ) {
     this.form = this.formBuilder.group({
-      email: this.formBuilder.control('', {validators: [Validators.required, Validators.email], nonNullable: true}),
-      senha: this.formBuilder.control ('', {validators: [Validators.required, Validators.minLength(8)], nonNullable: true})
+      email: this.formBuilder.control('', { validators: [Validators.required, Validators.email], nonNullable: true }),
+      senha: this.formBuilder.control('', { validators: [Validators.required, Validators.minLength(8)], nonNullable: true })
     });
   }
 
   ngOnInit(): void {
-    if(this.authService.isLoggedin()) {
+    if (this.authService.isLoggedin()) {
       this.router.navigate(['/tasks'])
     }
   }
 
-   get passwordControl(): FormControl {
+  get passwordControl(): FormControl {
     return this.form.get('senha') as FormControl;
   }
 
@@ -79,11 +79,18 @@ export class Login {
       .subscribe({
         next: (response) => {
           this.authService.saveToken(response);
-          this.router.navigate(['/']);
+          this.userService.getUserbyEmail(response).subscribe({
+            next: (user) => {
+              this.authService.saveUser(user);
+              this.router.navigate(['/tasks']);
+            }, error: (error) => {
+              console.error(`Erro ao entrar`, error)
+            }
+          }
+          )
+          
         },
-        error: (error) => {
-          console.error(`Erro ao entrar`, error)
-        }
+
       })
   }
 }

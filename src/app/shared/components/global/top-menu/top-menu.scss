@@ -20,7 +20,20 @@
     }
 
     a {
-    text-decoration: none;
-    margin: 0 8px;
-}
+        text-decoration: none;
+        margin: 0 8px;
+    }
+
+    .avatar-user {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgb(0, 26, 255);
+        color: white;
+        font-weight: 600;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
 }

@@ -1,6 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { AuthService } from './auth';
 
 interface UserRegisterPayload {
     nome: string,
@@ -20,7 +22,7 @@ interface UserRegisterPayload {
     }]
 }
 
-interface UserRegisterResponse {
+export interface UserResponse {
     nome: string,
     email: string,
     senha: string,
@@ -52,14 +54,45 @@ export class UserService {
 
     private apiUrl = 'http://localhost:8083';
 
-    constructor(private http: HttpClient) { }
+    private jwtHelper = new JwtHelperService;
+
+    user = signal<UserResponse | null>(null);
+
+    constructor(private http: HttpClient, private authService: AuthService) {
+        const savedUser = this.authService.getUser();
+        if (savedUser) {
+            this.user.set(savedUser);
+        }
+    }
 
 
-    register(body: UserRegisterPayload): Observable<UserRegisterResponse> {
-        return this.http.post<UserRegisterResponse>(`${this.apiUrl}/usuario`, body)
+    register(body: UserRegisterPayload): Observable<UserResponse> {
+        return this.http.post<UserResponse>(`${this.apiUrl}/usuario`, body)
     }
 
     login(body: UserLoginPayload): Observable<string> {
-        return this.http.post<string>(`${this.apiUrl}/usuario/login`, body, {responseType: 'text' as 'json'})
+        return this.http.post<string>(`${this.apiUrl}/usuario/login`, body, { responseType: 'text' as 'json' })
+    }
+
+
+    getUserbyEmail(token: string): Observable<UserResponse> {
+        const email = this.getEmailByToken(token);
+        if (!email) throw new Error('Token inválido');
+        const headers = new HttpHeaders({ Authorization: `${token}` });
+        return this.http.get<UserResponse>(`${this.apiUrl}/usuario?email=${email}`, { headers });
+    }
+
+    getEmailByToken(token: string): string | null {
+        try {
+            const decoded = this.jwtHelper.decodeToken(token);
+            return decoded?.sub || null;
+        } catch (error) {
+            return null;
+        }
+
+    }
+
+    getUser(): UserResponse | null {
+        return this.user();
     }
 }
