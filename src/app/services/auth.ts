@@ -12,4 +12,8 @@ export class AuthService {
     getToken(): string | null {
         return localStorage.getItem(this.TOKEN_KEY);
     }
+
+    isLoggedin(): boolean {
+        return !!this.getToken();
+    }
 }

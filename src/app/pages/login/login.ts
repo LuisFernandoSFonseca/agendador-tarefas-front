@@ -47,6 +47,12 @@ export class Login {
     });
   }
 
+  ngOnInit(): void {
+    if(this.authService.isLoggedin()) {
+      this.router.navigate(['/tasks'])
+    }
+  }
+
    get passwordControl(): FormControl {
     return this.form.get('senha') as FormControl;
   }

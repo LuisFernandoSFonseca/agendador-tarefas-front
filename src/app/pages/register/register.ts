@@ -10,6 +10,7 @@ import { UserService } from '../../services/user';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../services/auth';
 
 @Component({
   imports: [
@@ -33,13 +34,20 @@ export class Register {
   constructor(
     private formBuilder: FormBuilder,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private authService : AuthService
   ) {
     this.form = this.formBuilder.group({
       nome: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       senha: ['', [Validators.required, Validators.minLength(8)]]
     })
+  }
+
+   ngOnInit(): void {
+    if(this.authService.isLoggedin()) {
+      this.router.navigate(['/tasks'])
+    }
   }
 
   get passwordControl(): FormControl {
