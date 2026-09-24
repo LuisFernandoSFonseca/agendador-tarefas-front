@@ -82,6 +82,7 @@ export class Login {
           this.userService.getUserbyEmail(response).subscribe({
             next: (user) => {
               this.authService.saveUser(user);
+              this.userService.setUser(user);
               this.router.navigate(['/tasks']);
             }, error: (error) => {
               console.error(`Erro ao entrar`, error)

@@ -13,8 +13,58 @@
                 <input matInput formControlName="email">
             </mat-form-field>
         </form>
+        <h3>Endereços</h3>
+        <mat-list>
+            @for (endereco of user()?.enderecos??[]; track endereco.numero) {
+            <div class="item-wrapper">
+                <div class="item-text">
+                    <mat-list-item [matTooltip]="`
+                    ${endereco.rua}, 
+                    ${endereco.numero}, 
+                    ${endereco.complemento ? `${endereco.complemento}, `: ''} 
+                    ${endereco.cidade}-
+                    ${endereco.estado}, 
+                    ${endereco.cep}`"
+                    [matTooltipPosition]="'above'">
+                        {{endereco.rua}}, {{endereco.numero}}
+                        @if (endereco.complemento) {<span>, {{endereco.complemento}}</span>}
+                        , {{endereco.cidade}}-{{endereco.estado}},
+                        {{endereco.cep}}
+                    </mat-list-item>
+                </div>
+                <div class="item-actions" (click)="editAddres(endereco)">
+                    <button matIconButton>
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button matIconButton>
+                        <mat-icon>delete</mat-icon>
+                    </button>
+
+                </div>
+            </div>
+            }
+        </mat-list>
+        <button matButton="filled" (click)="registerAddres()">Adicionar endereço</button>
+        <h3>Telefones</h3>
+        <mat-list>
+            @for (telefone of user()?.telefones??[]; track telefone.numero) {
+            <div class="item-wrapper">
+                <div class="item-text">
+                    <mat-list-item>({{telefone.ddd}}) {{telefone.numero}}</mat-list-item>
+                </div>
+                <div class="item-actions" (click)="editPhone(telefone)">
+                    <button matIconButton>
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button matIconButton>
+                        <mat-icon>delete</mat-icon>
+                    </button>
+
+                </div>
+            </div>
+            }
+        </mat-list>
+        <button matButton="filled" (click)="registerPhone()">Adicionar telefone</button>
     </mat-card-content>
-    <mat-card-actions>
-        <button matButton>Learn More</button>
-    </mat-card-actions>
+
 </mat-card>
