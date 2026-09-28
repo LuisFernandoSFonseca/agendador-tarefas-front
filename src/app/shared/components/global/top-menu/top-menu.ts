@@ -6,8 +6,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RouterStateService } from '../../../../core/router/router-state';
-import { AuthService } from '../../../../services/auth';
-import { UserService } from '../../../../services/user';
+import { AuthService } from '../../../../services/auth.service';
+import { UserService } from '../../../../services/user.service';
 
 @Component({
   imports: [
