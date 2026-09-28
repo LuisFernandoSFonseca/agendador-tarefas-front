@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   imports: [MatButtonModule, RouterLink],
@@ -13,16 +13,11 @@ export class Home {
 
   imgHero = 'assets/imagem-hero.svg'
 
-  // constructor (
-  //   private authService: AuthService,
-  //   private router: Router
-  // ){ }
-
   private authService = inject(AuthService)
   private router = inject(Router)
 
-   ngOnInit(): void {
-    if(this.authService.isLoggedin()) {
+  ngOnInit(): void {
+    if (this.authService.isLoggedin()) {
       this.router.navigate(['/tasks'])
     }
   }

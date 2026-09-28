@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Observable, switchMap, tap } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { AuthService } from './auth';
+import { AuthService } from './auth.service';
 
 interface UserRegisterPayload {
     nome: string,
@@ -54,7 +54,7 @@ export interface UserLoginPayload {
 )
 export class UserService {
 
-    private apiUrl = 'http://localhost:8083';
+    private apiUrl = 'http://localhost:8083'; //TODO: colocar em um .env
 
     private jwtHelper = new JwtHelperService;
 
@@ -68,7 +68,6 @@ export class UserService {
         }
     }
 
-
     register(body: UserRegisterPayload): Observable<UserResponse> {
         return this.http.post<UserResponse>(`${this.apiUrl}/usuario`, body)
     }
@@ -76,7 +75,6 @@ export class UserService {
     login(body: UserLoginPayload): Observable<string> {
         return this.http.post<string>(`${this.apiUrl}/usuario/login`, body, { responseType: 'text' as 'json' })
     }
-
 
     getUserbyEmail(token: string): Observable<UserResponse> {
         const email = this.getEmailByToken(token);
@@ -98,7 +96,6 @@ export class UserService {
     getAddresByCep(cep: string): Observable<any> {
         return this.http.get<any>(`${this.apiUrl}/usuario/endereco/${cep}`);
     }
-
 
     saveAddres(body: { rua: string, numero: number, complemento: string, cidade: string, estado: string, cep: string }, token: string): Observable<any> {
         const headers = new HttpHeaders({ Authorization: `${token}` });

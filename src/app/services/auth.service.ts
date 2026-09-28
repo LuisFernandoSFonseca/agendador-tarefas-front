@@ -1,5 +1,5 @@
 import { Service } from '@angular/core';
-import { UserResponse } from './user';
+import { UserResponse } from './user.service';
 
 @Service()
 export class AuthService {
