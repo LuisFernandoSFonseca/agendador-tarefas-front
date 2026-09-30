@@ -32,12 +32,12 @@
                         {{endereco.cep}}
                     </mat-list-item>
                 </div>
-                <div class="item-actions" (click)="editAddres(endereco)">
+                <div class="item-actions">
                     <button matIconButton>
-                        <mat-icon>edit</mat-icon>
+                        <mat-icon (click)="editAddres(endereco)">edit</mat-icon>
                     </button>
                     <button matIconButton>
-                        <mat-icon>delete</mat-icon>
+                        <mat-icon (click)="deleteAddres(endereco)">delete</mat-icon>
                     </button>
 
                 </div>
@@ -52,12 +52,12 @@
                 <div class="item-text">
                     <mat-list-item>({{telefone.ddd}}) {{telefone.numero}}</mat-list-item>
                 </div>
-                <div class="item-actions" (click)="editPhone(telefone)">
+                <div class="item-actions">
                     <button matIconButton>
-                        <mat-icon>edit</mat-icon>
+                        <mat-icon (click)="editPhone(telefone)">edit</mat-icon>
                     </button>
                     <button matIconButton>
-                        <mat-icon>delete</mat-icon>
+                        <mat-icon (click)="deletePhone(telefone)">delete</mat-icon>
                     </button>
 
                 </div>
