@@ -99,7 +99,7 @@ export class UserService {
 
     saveAddres(body: { rua: string, numero: number, complemento: string, cidade: string, estado: string, cep: string }, token: string): Observable<any> {
         const headers = new HttpHeaders({ Authorization: `${token}` });
-        return this.http.put<UserResponse>(`${this.apiUrl}/usuario/endereco`, body, { headers }).pipe(
+        return this.http.post<UserResponse>(`${this.apiUrl}/usuario/endereco`, body, { headers }).pipe(
             switchMap(() => this.getUserbyEmail(token)),
             tap(user => {
                 this.setUser(user);
@@ -110,7 +110,7 @@ export class UserService {
 
     savePhone(body: { numero: string, ddd: string, }, token: string): Observable<any> {
         const headers = new HttpHeaders({ Authorization: `${token}` });
-        return this.http.put<UserResponse>(`${this.apiUrl}/usuario/telefone`, body, { headers }).pipe(
+        return this.http.post<UserResponse>(`${this.apiUrl}/usuario/telefone`, body, { headers }).pipe(
             switchMap(() => this.getUserbyEmail(token)),
             tap(user => {
                 this.setUser(user);
@@ -133,6 +133,28 @@ export class UserService {
     updatePhone(id: number, body: { numero: string, ddd: string }, token: string): Observable<any> {
         const headers = new HttpHeaders({ Authorization: `${token}` });
         return this.http.put<UserResponse>(`${this.apiUrl}/usuario/telefone?id=${id}`, body, { headers }).pipe(
+            switchMap(() => this.getUserbyEmail(token)),
+            tap(user => {
+                this.setUser(user);
+                this.authService.saveUser(user);
+            })
+        )
+    }
+
+    deletePhone(id: number, token: string): Observable<any> {
+        const headers = new HttpHeaders({ Authorization: `${token}` });
+        return this.http.delete<UserResponse>(`${this.apiUrl}/usuario/telefone?id=${id}`, { headers }).pipe(
+            switchMap(() => this.getUserbyEmail(token)),
+            tap(user => {
+                this.setUser(user);
+                this.authService.saveUser(user);
+            })
+        )
+    }
+
+    deleteAddres(id: number, token: string): Observable<any> {
+        const headers = new HttpHeaders({ Authorization: `${token}` });
+        return this.http.delete<UserResponse>(`${this.apiUrl}/usuario/endereco?id=${id}`, { headers }).pipe(
             switchMap(() => this.getUserbyEmail(token)),
             tap(user => {
                 this.setUser(user);

@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConfirmModalDialog } from '../../shared/components/confirm-modal-dialog/confirm-modal-dialog';
 
 @Component({
   imports: [
@@ -134,21 +135,6 @@ export class UserData {
     })
   }
 
-  findAddresByCep(cep: string, dialogRef: MatDialogRef<ModalDialog, any>) {
-    this.userService.getAddresByCep(cep).subscribe({
-      next: (response) => {
-        dialogRef.componentInstance.form.patchValue(
-          {
-            rua: response.logradouro,
-            complemento: response.complemento,
-            cidade: response.localidade,
-            estado: response.uf
-          });
-      },
-      error: () => console.warn('CEP não encontrado')
-    })
-  }
-
   editPhone(telefone: { id: number, ddd: string, numero: string }) {
     const token = this.authService.getToken();
     if (!token) return;
@@ -172,4 +158,68 @@ export class UserData {
     })
   }
 
+  findAddresByCep(cep: string, dialogRef: MatDialogRef<ModalDialog, any>) {
+    this.userService.getAddresByCep(cep).subscribe({
+      next: (response) => {
+        dialogRef.componentInstance.form.patchValue(
+          {
+            rua: response.logradouro,
+            complemento: response.complemento,
+            cidade: response.localidade,
+            estado: response.uf
+          });
+      },
+      error: () => console.warn('CEP não encontrado')
+    })
+  }
+
+  deleteAddres(endereco: { id: number, rua: string, numero: number, complemento: string, cidade: string, estado: string, cep: string }) {
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    const dialogRef = this.dialog.open(ConfirmModalDialog, {
+      data: {
+        title: 'Deletar Endereço?',
+        message: 'Tem certeza que deseja deletar este endereço',
+        confirmButton: 'Deletar',
+        cancelButton: 'Cancelar'
+      },
+    })
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log("Endereço: ", endereco);
+        console.log("id: ", endereco.id);
+
+        this.userService.deleteAddres(endereco.id, token).subscribe({
+          next: () => console.log('Endereço deletado com sucesso', result), //TODO: add toast
+          error: () => console.log('Erro ao deletar endereço', result), //TODO: add toast
+        });
+      }
+    })
+  };
+
+  deletePhone(telefone: { id: number, ddd: string, numero: string }) {
+    const token = this.authService.getToken();
+    if (!token) return;
+
+    const dialogRef = this.dialog.open(ConfirmModalDialog, {
+      data: {
+        title: 'Deletar Telefone?',
+        message: 'Tem certeza que deseja deletar este telefone',
+        confirmButton: 'Deletar',
+        cancelButton: 'Cancelar'
+      },
+    })
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+
+        this.userService.deletePhone(telefone.id, token).subscribe({
+          next: () => console.log('Telefone deletado com sucesso', result), //TODO: add toast
+          error: () => console.log('Erro ao deletar telefone', result), //TODO: add toast
+        });
+      }
+    })
+  };
 }
